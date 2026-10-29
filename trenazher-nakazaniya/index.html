@@ -1,0 +1,384 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LEX CASE · Назначение наказаний</title><style>:root{--bg:#f6f5fb;--card:#fff;--ink:#1e1b3a;--mute:#6b6890;--line:#dcd8f0;--acc:#6b2fd6;--acc2:#0aa8a0;--ok:#16794a;--okbg:#e3f5ea;--bad:#b3261e;--badbg:#fdeceb;--warn:#8a5a00;--warnbg:#fff4d9}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#1b1738;--card:#282252;--ink:#ecebfa;--mute:#b4aee3;--line:#473f86;--acc:#a97bff;--acc2:#0bf0e1;--ok:#6fe0a0;--okbg:#17382b;--bad:#ff9a92;--badbg:#44211f;--warn:#ffd27a;--warnbg:#463716}}
+:root[data-theme=dark]{--bg:#1b1738;--card:#282252;--ink:#ecebfa;--mute:#b4aee3;--line:#473f86;--acc:#a97bff;--acc2:#0bf0e1;--ok:#6fe0a0;--okbg:#17382b;--bad:#ff9a92;--badbg:#44211f;--warn:#ffd27a;--warnbg:#463716}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:20px 16px 60px}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+h1{font-size:26px;margin:0}h1 span{color:var(--acc)}.sub{color:var(--mute);margin:4px 0 0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-top:16px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:end}.row>label{display:flex;flex-direction:column;font-size:13px;color:var(--mute);gap:4px;flex:1;min-width:150px}
+select,input[type=number],input[type=text]{font:inherit;padding:9px 10px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink);width:100%}
+button{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:9px 14px;border-radius:9px}
+button.p{background:var(--acc);color:#fff;border-color:var(--acc)}button:hover{filter:brightness(1.07)}
+.tag{display:inline-block;font-size:12px;padding:2px 9px;border-radius:99px;background:var(--bg);border:1px solid var(--line);color:var(--mute);margin-right:6px}
+.ep{border-left:4px solid var(--acc2);padding:6px 12px;margin:10px 0;background:var(--bg);border-radius:0 9px 9px 0}
+.ep b{color:var(--acc)}
+.q{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}
+.ans{display:grid;grid-template-columns:1fr 90px 90px;gap:8px;align-items:center;margin:6px 0}.ans small{color:var(--mute)}
+.fb{padding:10px 12px;border-radius:9px;margin:6px 0;font-size:15px}.ok{background:var(--okbg);color:var(--ok)}.bad{background:var(--badbg);color:var(--bad)}.warn{background:var(--warnbg);color:var(--warn)}
+.step{display:grid;grid-template-columns:110px 1fr;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);font-size:15px}.step i{font-style:normal;color:var(--acc);font-weight:600}
+.final{font-size:17px;padding:12px;border:2px solid var(--acc);border-radius:10px;margin-top:10px}
+.score{float:right;color:var(--mute);font-size:14px}
+.choice{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.choice button.sel{background:var(--acc);color:#fff;border-color:var(--acc)}
+.disc{font-size:13px;color:var(--mute);margin-top:22px;border-top:1px solid var(--line);padding-top:12px}
+.hide{display:none}
+@media(max-width:560px){.ans{grid-template-columns:1fr 1fr}.ans>:first-child{grid-column:1/-1}.step{grid-template-columns:1fr}}
+</style></head><body><div class="wrap">
+<header><div><h1>LEX CASE <span>· Назначение наказаний</span></h1>
+<p class="sub">Учебный тренажёр: определите пределы наказания, проверьте приговор, найдите ошибку в расчёте. Алгоритм — по навыку «naznachenie-nakazaniya-rf».</p></div>
+<button id="themeToggle" type="button">Тема</button></header>
+<section class="card"><div class="row">
+<label>Режим<select id="mode"><option value="solve">Определить пределы наказания</option><option value="check">Проверить приговор</option><option value="calc">Проверить расчёт суда</option></select></label>
+<label>Уровень<select id="level"><option value="1">Базовый: одна норма</option><option value="2">Средний: две нормы вместе</option><option value="3">Повышенный: совокупность, ст. 70, ст. 72</option></select></label>
+<button id="newBtn" class="p" type="button">Новый кейс</button></div></section>
+<section class="card" id="caseCard"></section>
+<section class="card hide" id="taskCard"></section>
+<section class="card hide" id="solCard"></section>
+<p class="disc">Тренажёр учебный. Санкции статей взяты из сводного текста УК РФ по состоянию на 15.08.2026; перед использованием в работе сверяйте актуальную редакцию. Факты в кейсах вымышлены. Упрощения: не учитываются дополнительные наказания, условное осуждение (ст. 73), ст. 64, несовершеннолетие. Алгоритм и правила — в навыке «Назначение наказаний (РФ)»; это не заменяет правовую позицию по конкретному делу.</p>
+</div><script>/* Движок тренажёра «Назначение наказания». Алгоритм повторяет skill «naznachenie-nakazaniya-rf» (шаги 4–10, ст. 69–72).
+   Все сроки хранятся в месяцах (целых). Дробные результаты отбраковываются при генерации кейса. */
+(function (root) {
+  'use strict';
+
+  /* ---------- Каталог составов (санкции по сводному тексту УК РФ на 15.08.2026; наиболее строгий вид — лишение свободы) ---------- */
+  const CRIMES = {
+    k158_1: { art: 'ч. 1 ст. 158 УК РФ', name: 'кража', max: 24, min: null },
+    k158_2: { art: 'ч. 2 ст. 158 УК РФ', name: 'кража', max: 60, min: null },
+    k158_3: { art: 'ч. 3 ст. 158 УК РФ', name: 'кража', max: 72, min: null },
+    k159_3: { art: 'ч. 3 ст. 159 УК РФ', name: 'мошенничество', max: 72, min: null },
+    k161_1: { art: 'ч. 1 ст. 161 УК РФ', name: 'грабёж', max: 48, min: null },
+    k161_2: { art: 'ч. 2 ст. 161 УК РФ', name: 'грабёж', max: 84, min: null },
+    k111_1: { art: 'ч. 1 ст. 111 УК РФ', name: 'умышленное причинение тяжкого вреда здоровью', max: 96, min: null },
+    k228_2: { art: 'ч. 2 ст. 228 УК РФ', name: 'незаконное приобретение и хранение наркотических средств', max: 120, min: 36 },
+    k105_1: { art: 'ч. 1 ст. 105 УК РФ', name: 'убийство', max: 180, min: 72, jury: true }
+  };
+  const GENERAL_MIN = 2; // ст. 56 ч. 2: лишение свободы не менее 2 месяцев
+
+  function category(max) { return max <= 36 ? 'small' : max <= 60 ? 'medium' : max <= 120 ? 'heavy' : 'vheavy'; }
+  const CATNAME = { small: 'небольшой тяжести', medium: 'средней тяжести', heavy: 'тяжкое', vheavy: 'особо тяжкое' };
+  const isHeavy = (c) => c === 'heavy' || c === 'vheavy';
+
+  /* ---------- Форматирование ---------- */
+  function fmt(m) {
+    m = Math.round(m * 1000) / 1000;
+    if (!Number.isInteger(m)) {
+      const whole = Math.floor(m), days = Math.round((m - whole) * 30);
+      return (whole ? fmt(whole) + ' ' : '') + days + ' дн';
+    }
+    const y = Math.floor(m / 12), r = m % 12, p = [];
+    const yw = (y % 10 === 1 && y % 100 !== 11) ? 'год' : (y % 10 >= 2 && y % 10 <= 4 && (y % 100 < 10 || y % 100 >= 20)) ? 'года' : 'лет';
+    if (y) p.push(y + ' ' + yw);
+    if (r) p.push(r + ' мес');
+    return p.length ? p.join(' ') : '0 мес';
+  }
+  const frac = (n, d) => n + '/' + d;
+  const isInt = (x) => Math.abs(x - Math.round(x)) < 1e-9;
+
+  /* ---------- Приложение процесса к одному эпизоду (ст. 66 → 62/65 → 68) ---------- */
+  function calcEpisode(ep, ctx) {
+    const c = CRIMES[ep.crime], steps = [];
+    let M = c.max;
+    const minSanc = c.min != null ? c.min : GENERAL_MIN;
+    steps.push({ norm: 'Санкция', text: 'Наиболее строгий вид — лишение свободы. Максимум по ' + c.art + ': ' + fmt(M) + (c.min != null ? ' (минимум ' + fmt(c.min) + ')' : ' (нижний предел — общий минимум 2 мес., ст. 56 ч. 2)'), value: M, law: true });
+    if (ep.stage === 'attempt') {
+      const v = M * 3 / 4; steps.push({ norm: 'ст. 66 ч. 3', text: 'Покушение: ' + fmt(M) + ' × 3/4 = ' + fmt(v), value: v, law: true }); M = v;
+    } else if (ep.stage === 'prep') {
+      const v = M / 2; steps.push({ norm: 'ст. 66 ч. 2', text: 'Приготовление: ' + fmt(M) + ' × 1/2 = ' + fmt(v), value: v, law: true }); M = v;
+    }
+    const M66 = M;
+    let applied = null;
+    if (ctx.procedure === 'jury') {
+      const v = M * 2 / 3; applied = 'ст. 65 ч. 1';
+      steps.push({ norm: 'ст. 65 ч. 1', text: 'Вердикт о снисхождении: ' + fmt(M) + ' × 2/3 = ' + fmt(v) + (ep.iK ? '. Ст. 62 ч. 1 дополнительно не применяется — двойное снижение исключено (п. 42 Пленума № 58)' : ''), value: v, law: true }); M = v;
+    } else if (ctx.procedure === 'plea') {
+      const v = M / 2; applied = 'ст. 62 ч. 2';
+      steps.push({ norm: 'ст. 62 ч. 2', text: 'Досудебное соглашение выполнено, есть п. «и» ч. 1 ст. 61, отягчающих нет: ' + fmt(M) + ' × 1/2 = ' + fmt(v), value: v, law: true }); M = v;
+    } else if (ctx.procedure === 'ch40') {
+      const v = M * 2 / 3; applied = 'ст. 62 ч. 5';
+      steps.push({ norm: 'ст. 62 ч. 5', text: 'Особый порядок (гл. 40 УПК РФ): ' + fmt(M) + ' × 2/3 = ' + fmt(v), value: v, law: true }); M = v;
+    } else if (ep.iK && !ctx.recid) {
+      const v = M * 2 / 3; applied = 'ст. 62 ч. 1';
+      steps.push({ norm: 'ст. 62 ч. 1', text: 'Есть п. «' + ep.iK + '» ч. 1 ст. 61, отягчающих нет: ' + fmt(M) + ' × 2/3 = ' + fmt(v), value: v, law: true }); M = v;
+    }
+    const Mfin = M;
+    let lo = minSanc;
+    if (ctx.recid) {
+      const third = M66 / 3;
+      lo = Math.max(minSanc, third);
+      steps.push({ norm: 'ст. 68 ч. 2', text: 'Рецидив: срок не менее 1/3 максимума наиболее строгого вида — ' + fmt(M66) + ' × 1/3 = ' + fmt(third) + (applied ? ' (база — максимум после ст. 66, а не после ' + applied + ')' : ''), value: third, law: true });
+    }
+    const sub = Mfin < minSanc;
+    if (sub) steps.push({ norm: 'п. 34 Пленума № 58', text: 'Расчётный максимум (' + fmt(Mfin) + ') ниже низшего предела санкции (' + fmt(minSanc) + '). Назначение ниже низшего предела допустимо без ссылки на ст. 64: оно следует из ст. 62/65/66', value: Mfin, law: true });
+    return { crime: c, steps, M0: c.max, M66, Mfin, lo: sub ? GENERAL_MIN : lo, hi: Mfin, sub, minSanc, applied, cat: category(c.max) };
+  }
+
+  /* ---------- Совокупность (ст. 69) ---------- */
+  function calcCombo(eps, res, sentences) {
+    if (eps.length < 2) return null;
+    const cats = eps.map((e, i) => res[i].cat);
+    const allUnf = eps.every((e) => e.stage !== 'complete');
+    const heavyDone = eps.some((e, i) => e.stage === 'complete' && isHeavy(cats[i]));
+    const part = heavyDone ? 3 : 2;
+    let idx = 0;
+    for (let i = 1; i < eps.length; i++) {
+      const a = allUnf ? res[i].M66 : res[i].M0, b = allUnf ? res[idx].M66 : res[idx].M0;
+      if (a > b) idx = i;
+    }
+    const capBase = allUnf ? res[idx].M66 : res[idx].M0;
+    const cap = capBase * 3 / 2;
+    const sum = sentences.reduce((a, b) => a + b, 0);
+    const mx = Math.max.apply(null, sentences);
+    const upper = Math.min(cap, sum, 240);
+    const reduced = eps.some((e, i) => res[i].Mfin < res[i].M66);
+    return { part, idx, capBase, cap, sum, mx, upper, allUnf, reduced, cats, lowerStrict: part === 3, lower: mx };
+  }
+
+  /* ---------- ст. 70 и ст. 71 ---------- */
+  const FACT71 = { ls: 1, ogr: 1 / 2, ir: 1 / 3 };
+  const TYPE71 = { ls: 'лишения свободы', ogr: 'ограничения свободы', ir: 'исправительных работ' };
+  const TYPE71_NOM = { ls: 'лишение свободы', ogr: 'ограничение свободы', ir: 'исправительные работы' };
+  function calc70(F, prior) {
+    const eq = prior.unserved * FACT71[prior.type];
+    return { eq, max: F + eq, minExcl: Math.max(F, eq) };
+  }
+
+  /* ---------- ст. 58 (вид режима, упрощённо для учебных условий) и ст. 72 ---------- */
+  const REGIME = { strict: { k: 1, name: 'исправительная колония строгого режима', ru: 'строгого режима' },
+                   general: { k: 1.5, name: 'исправительная колония общего режима', ru: 'общего режима' },
+                   settlement: { k: 2, name: 'колония-поселение', ru: 'колонии-поселения' } };
+  function calc72(days, regimeKey) { const k = REGIME[regimeKey].k; return { k, credit: days * k }; }
+
+  /* ---------- ГПСЧ ---------- */
+  function rng(seed) {
+    let a = (seed >>> 0) || 1;
+    const r = function () { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    r.int = (lo, hi) => lo + Math.floor(r() * (hi - lo + 1));
+    r.pick = (arr) => arr[Math.floor(r() * arr.length)];
+    r.chance = (p) => r() < p;
+    return r;
+  }
+
+  /* ---------- Генерация сценария ---------- */
+  const LEVELS = { 1: 'Базовый', 2: 'Средний', 3: 'Повышенный' };
+  const prepOk = (crime) => isHeavy(category(CRIMES[crime].max));
+  const NON_JURY = Object.keys(CRIMES).filter((k) => !CRIMES[k].jury);
+  const NON_JURY_CH40 = NON_JURY; // все ≤ 10 лет, особый порядок допустим
+
+  function makeEp(crime, stage, iK) { return { crime, stage: stage || 'complete', iK: iK || null }; }
+
+  function templates(level, r) {
+    const T = [];
+    const iKp = () => r.pick(['и', 'к']);
+    if (level === 1) {
+      T.push(() => ({ ctx: { procedure: 'general', recid: false, prior: 'none' }, eps: [makeEp(r.pick(NON_JURY), 'attempt')], tag: 'ст. 66' }));
+      T.push(() => { const c = r.pick(NON_JURY.filter(prepOk)); return { ctx: { procedure: 'general', recid: false, prior: 'none' }, eps: [makeEp(c, 'prep')], tag: 'ст. 66' }; });
+      T.push(() => ({ ctx: { procedure: 'general', recid: false, prior: 'none' }, eps: [makeEp(r.pick(NON_JURY), 'complete', iKp())], tag: 'ст. 62 ч. 1' }));
+      T.push(() => ({ ctx: { procedure: 'ch40', recid: false, prior: 'none' }, eps: [makeEp(r.pick(NON_JURY_CH40))], tag: 'ст. 62 ч. 5' }));
+      T.push(() => ({ ctx: { procedure: 'general', recid: true, prior: 'recid' }, eps: [makeEp(r.pick(NON_JURY))], tag: 'ст. 68' }));
+      T.push(() => ({ ctx: { procedure: 'jury', recid: false, prior: 'none' }, eps: [makeEp('k105_1')], tag: 'ст. 65' }));
+      T.push(() => ({ ctx: { procedure: 'plea', recid: false, prior: 'none' }, eps: [makeEp(r.pick(NON_JURY), 'complete', 'и')], tag: 'ст. 62 ч. 2' }));
+    } else if (level === 2) {
+      T.push(() => ({ ctx: { procedure: 'general', recid: false, prior: 'none' }, eps: [makeEp(r.pick(NON_JURY), 'attempt', iKp())], tag: 'ст. 66 + 62' }));
+      T.push(() => ({ ctx: { procedure: 'ch40', recid: false, prior: 'none' }, eps: [makeEp(r.pick(NON_JURY), 'attempt')], tag: 'ст. 66 + 62 ч. 5' }));
+      T.push(() => ({ ctx: { procedure: 'ch40', recid: true, prior: 'recid' }, eps: [makeEp(r.pick(NON_JURY))], tag: 'ст. 62 ч. 5 + 68' }));
+      T.push(() => ({ ctx: { procedure: 'general', recid: true, prior: 'recid' }, eps: [makeEp(r.pick(NON_JURY), 'attempt')], tag: 'ст. 66 + 68' }));
+      T.push(() => ({ ctx: { procedure: 'jury', recid: false, prior: 'none' }, eps: [makeEp('k105_1', 'complete', iKp())], tag: 'ст. 65 и 62 ч. 1' }));
+      T.push(() => ({ ctx: { procedure: 'plea', recid: false, prior: 'none' }, eps: [makeEp('k105_1', 'prep', 'и')], tag: 'ст. 66 + 62 ч. 2' }));
+      T.push(() => ({ ctx: { procedure: 'general', recid: false, prior: r.pick(['t1', 't2', 't3']) }, eps: [makeEp(r.pick(NON_JURY), 'complete', iKp())], tag: 'ст. 18 ч. 4' }));
+      T.push(() => ({ ctx: { procedure: 'jury', recid: false, prior: 'none' }, eps: [makeEp('k105_1', 'attempt')], tag: 'ст. 66 + 65' }));
+    } else {
+      T.push(() => {
+        const n = r.pick([2, 2, 3]); const unf = r.chance(0.35);
+        const pool = NON_JURY.slice();
+        const eps = []; const used = new Set();
+        while (eps.length < n) {
+          let c = r.pick(pool); if (used.has(c)) continue; used.add(c);
+          const stage = unf ? (prepOk(c) && r.chance(0.5) ? 'prep' : 'attempt') : 'complete';
+          eps.push(makeEp(c, stage));
+        }
+        const procedure = r.pick(['general', 'general', 'ch40']);
+        const recid = procedure === 'general' && r.chance(0.35);
+        eps.forEach((e) => { if (procedure === 'general' && !recid && r.chance(0.5)) e.iK = iKp(); });
+        return { ctx: { procedure, recid, prior: recid ? 'recid' : 'none' }, eps, tag: 'ст. 69' + (unf ? ' (неоконченные)' : '') };
+      });
+    }
+    return T;
+  }
+
+  function priorFor(sc, r) {
+    const ctx = sc.ctx;
+    if (!ctx.prior || ctx.prior === 'none') { ctx.p70 = null; return; }
+    return;
+  }
+
+  function regimeFor(sc, res, combo) {
+    if (sc.ctx.recid) return 'strict';
+    const anyHeavyDone = sc.eps.some((e, i) => e.stage === 'complete' && isHeavy(res[i].cat));
+    return anyHeavyDone ? 'general' : 'settlement';
+  }
+
+  function generate(seed, level, mode) {
+    for (let attempt = 0; attempt < 200; attempt++) {
+      const r = rng(seed * 977 + attempt * 131 + level * 7 + (mode === 'check' ? 3 : mode === 'calc' ? 5 : 0));
+      const T = templates(level, r);
+      const t = r.pick(T)();
+      const sc = { seed, level, mode, ctx: t.ctx, eps: t.eps, tag: t.tag, attempt };
+      const res = sc.eps.map((e) => calcEpisode(e, sc.ctx));
+      if (!res.every((x) => isInt(x.Mfin) && isInt(x.M66) && isInt(x.lo) && isInt(x.hi))) continue;
+      if (res.some((x) => x.hi < 1)) continue;
+      // «приговоры» по эпизодам: внутри допустимого диапазона, кратно 3 мес.
+      sc.sent = res.map((x) => {
+        const a = Math.ceil(x.lo / 3) * 3, b = Math.floor(x.hi / 3) * 3;
+        if (b >= a) { const k = r.int(0, Math.floor((b - a) / 3)); return a + 3 * k; }
+        return Math.max(x.lo, Math.min(x.hi, Math.round(x.hi)));
+      });
+      sc.combo = calcCombo(sc.eps, res, sc.sent);
+      if (sc.combo && (!isInt(sc.combo.cap) || !isInt(sc.combo.upper))) continue;
+      sc.F = sc.eps.length > 1 ? null : sc.sent[0];
+      if (sc.combo) {
+        const lowF = sc.combo.lowerStrict ? sc.combo.mx + 1 : sc.combo.mx;
+        const a = Math.ceil(lowF / 3) * 3, b = Math.floor(sc.combo.upper / 3) * 3;
+        if (b < a) continue;
+        sc.F = a + 3 * r.int(0, Math.floor((b - a) / 3));
+      }
+      // ст. 70 / 71: только на повышенном уровне и если нет рецидива
+      sc.p70 = null;
+      if (level === 3 && !sc.ctx.recid && r.chance(0.6)) {
+        const type = r.pick(['ogr', 'ogr', 'ir']);
+        const unserved = type === 'ogr' ? r.pick([6, 8, 10, 12]) : r.pick([6, 9, 12]);
+        sc.p70 = { type, unserved, total: type === 'ogr' ? unserved + r.pick([4, 6]) : unserved + r.pick([3, 6]), crime: r.pick(['k158_1', 'k158_1']) };
+        sc.ctx.prior = 'sent70';
+      }
+      sc.res = res;
+      if (sc.p70) { sc.s70 = calc70(sc.F, sc.p70); if (!isInt(sc.s70.eq)) continue; }
+      sc.finalForRegime = sc.s70 ? sc.s70.max : sc.F;
+      sc.regime = regimeFor(sc, res, sc.combo);
+      if (level === 3 && r.chance(0.7)) {
+        sc.sizo = r.pick([60, 80, 100, 120, 140, 160, 180]);
+        sc.s72 = calc72(sc.sizo, sc.regime);
+      }
+      return sc;
+    }
+    throw new Error('не удалось сгенерировать кейс');
+  }
+
+  root.NN = { CRIMES, CATNAME, category, isHeavy, fmt, calcEpisode, calcCombo, calc70, calc72, rng, generate, REGIME, FACT71, TYPE71, TYPE71_NOM, LEVELS, GENERAL_MIN };
+  if (typeof module !== 'undefined') module.exports = root.NN;
+})(typeof window !== 'undefined' ? window : globalThis);
+</script><script>(function(){
+'use strict';
+const N=NN,$=id=>document.getElementById(id);
+const PROC={general:'общий порядок',ch40:'особый порядок (гл. 40 УПК РФ), приговор без судебного разбирательства',plea:'досудебное соглашение о сотрудничестве выполнено',jury:'суд присяжных, вердикт о снисхождении'};
+const STAGE={complete:'оконченное преступление',attempt:'покушение',prep:'приготовление'};
+const PRIOR={t1:'судимость погашена',t2:'судимости нет',t3:'судимость отсутствует'};
+const NAMES=['Белов','Громов','Ершов','Зайцев','Крылов','Лаптев','Мирошник','Орлов','Седов','Ткачёв','Фролов','Юдин'];
+let sc=null,seed=Math.floor(Math.random()*90000)+1,score={ok:0,all:0},checked=false,state={};
+const plural=(n,a,b,c)=>{n=Math.abs(n)%100;const k=n%10;return n>10&&n<20?c:k>1&&k<5?b:k==1?a:c};
+const yrs=m=>{const y=Math.floor(m/12),r=m%12;return {y,r}};
+function ctxText(){
+ const c=sc.ctx,p=[];p.push('<span class="tag">'+PROC[c.procedure]+'</span>');
+ p.push(c.recid?'<span class="tag">рецидив преступлений (ст. 18)</span>':'<span class="tag">рецидива нет</span>');
+ if(sc.p70)p.push('<span class="tag">совершено в период неотбытого наказания по предыдущему приговору</span>');
+ return p.join('');}
+function epText(e,i){
+ const c=N.CRIMES[e.crime],cat=N.CATNAME[N.category(c.max)];
+ const mit=e.iK?(e.iK==='и'?'явка с повинной и активное способствование раскрытию (п. «и» ч. 1 ст. 61)':'добровольное возмещение вреда (п. «к» ч. 1 ст. 61)'):'нет обстоятельств по п. «и» и «к» ч. 1 ст. 61';
+ return '<div class="ep"><b>Эпизод '+(i+1)+'.</b> '+c.art+' ('+c.name+', '+cat+'). Стадия: '+STAGE[e.stage]+'. Смягчающие: '+mit+'. Санкция: лишение свободы '+(c.min!=null?'от '+N.fmt(c.min)+' ':'')+'до '+N.fmt(c.max)+'.</div>';}
+function render(){
+ sc=N.generate(seed,+$('level').value,$('mode').value);checked=false;state={};
+ const nm=NAMES[seed%NAMES.length];
+ let h='<span class="tag">кейс №'+seed+'</span><span class="tag">'+sc.tag+'</span><div class="score" id="score"></div>';
+ h+='<p>Подсудимый '+nm+' обвиняется в '+(sc.eps.length>1?'совокупности преступлений':'совершении преступления')+'. '+ctxText()+'</p>';
+ h+=sc.eps.map(epText).join('');
+ if(sc.p70){const t=sc.p70;h+='<div class="ep"><b>Предыдущий приговор.</b> '+N.CRIMES[t.crime].art+': '+N.TYPE71_NOM[t.type]+' на '+N.fmt(t.total)+', неотбытая часть — '+N.fmt(t.unserved)+'.</div>';}
+ if(sc.sizo)h+='<div class="ep"><b>Меры пресечения.</b> В СИЗО содержался '+sc.sizo+' '+plural(sc.sizo,'сутки','суток','суток')+'.</div>';
+ $('caseCard').innerHTML=h;$('solCard').classList.add('hide');task();upd();}
+function upd(){const s=$('score');if(s)s.textContent='Верно: '+score.ok+' из '+score.all;}
+function inp(id,lab,hint){return '<div class="ans"><div>'+lab+(hint?'<br><small>'+hint+'</small>':'')+'</div><input type="number" min="0" id="'+id+'y" placeholder="лет"><input type="number" min="0" id="'+id+'m" placeholder="мес."></div>';}
+const val=id=>(+$(id+'y').value||0)*12+(+$(id+'m').value||0);
+const filled=id=>$(id+'y').value!==''||$(id+'m').value!=='';
+function task(){
+ const mode=sc.mode,t=$('taskCard');t.classList.remove('hide');let h='';
+ if(mode==='solve'){
+  h+='<b>Задание.</b> Для каждого эпизода укажите верхний предел срока лишения свободы с учётом всех правил. ';
+  sc.res.forEach((r,i)=>{h+=inp('hi'+i,'Эпизод '+(i+1)+' — максимум');
+   if(sc.ctx.recid||r.sub)h+=inp('lo'+i,'Эпизод '+(i+1)+' — минимум','ст. 68 и низший предел санкции');});
+  if(sc.combo)h+=inp('cap','Предел итогового наказания по ст. 69','с учётом ч. 2 или ч. 3 ст. 69');
+  if(sc.s70)h+=inp('m70','Максимум по ст. 70','после присоединения неотбытой части');
+  if(sc.s72)h+='<div class="ans"><div>Зачёт СИЗО по ст. 72 (в днях лишения свободы)</div><input type="number" id="d72" placeholder="дней"><span></span></div>';
+ }else if(mode==='check'){
+  h+='<b>Задание.</b> Суд назначил наказание. Законно ли оно по сроку?';
+  sc.vio=[];
+  sc.shown=sc.res.map((r,i)=>{let v=sc.sent[i],bad=false;
+   if(sc.ctx.seedBad===undefined){}
+   const rr=N.rng(seed*13+i);
+   if(rr.chance(0.5)){const over=rr.chance(0.7);const nv=over?r.hi+3:(r.sub?null:r.lo-3);if(nv!=null&&nv>=1){v=nv;bad=true;}}
+   sc.vio[i]=bad;return v;});
+  if(sc.combo){const rr=N.rng(seed*29);let F=sc.F,bad=false;if(rr.chance(0.5)){F=sc.combo.upper+3;bad=true;}sc.Fshown=F;sc.Fbad=bad;}
+  sc.res.forEach((r,i)=>{h+='<div class="ep">Эпизод '+(i+1)+': назначено <b>'+N.fmt(sc.shown[i])+'</b> лишения свободы.</div>';});
+  if(sc.combo)h+='<div class="ep">По совокупности по ст. 69 назначено <b>'+N.fmt(sc.Fshown)+'</b>.</div>';
+  const items=sc.res.map((r,i)=>['e'+i,'Эпизод '+(i+1)]);if(sc.combo)items.push(['f','Итог по ст. 69']);
+  items.forEach(it=>{h+='<div class="ans"><div>'+it[1]+'</div><div class="choice" data-k="'+it[0]+'"><button type="button" data-v="1">законно</button><button type="button" data-v="0">нарушение</button></div></div>';});
+ }else{
+  h+='<b>Задание.</b> Проверьте расчёт суда. Если он неверен — укажите правильный верхний предел.';
+  sc.court=sc.res.map((r,i)=>{const e=sc.eps[i],rr=N.rng(seed*7+i);let wrong=null,why='';
+   const opts=[];
+   if(e.stage!=='complete'&&sc.ctx.procedure!=='general'&&sc.ctx.procedure!=='jury'&&false)opts.push(0);
+   if(sc.ctx.procedure==='jury'&&e.iK)opts.push([r.M66*4/9,'Суд применил и ст. 65, и ст. 62 ч. 1 — двойное снижение (п. 42 Пленума № 58).']);
+   if(e.stage!=='complete'&&e.iK&&sc.ctx.procedure==='general'&&false)opts.push(0);
+   if(e.stage!=='complete'&&sc.ctx.procedure!=='jury')opts.push([r.hi*r.M0/r.M66,'Суд не применил ст. 66 (покушение/приготовление).']);
+   if(sc.ctx.procedure==='ch40')opts.push([r.M66,'Суд не применил ч. 5 ст. 62 при особом порядке.']);
+   if(e.iK&&sc.ctx.procedure==='general'&&!sc.ctx.recid)opts.push([r.M66,'Суд не применил ч. 1 ст. 62 при наличии п. «'+e.iK+'».']);
+   opts.push([r.hi+12,'Суд увеличил предел сверх допустимого: ошибка в арифметике.']);
+   const o=opts.filter(x=>x[0]!==r.hi&&x[0]>=1&&Number.isInteger(x[0]));
+   if(rr.chance(0.55)&&o.length){const p=rr.pick(o);wrong=p[0];why=p[1];}
+   return {shown:wrong!=null?wrong:r.hi,bad:wrong!=null,why};});
+  sc.res.forEach((r,i)=>{h+='<div class="ep">Эпизод '+(i+1)+': суд определил максимум <b>'+N.fmt(sc.court[i].shown)+'</b>.</div>';
+   h+='<div class="choice" data-k="c'+i+'"><button type="button" data-v="1">расчёт верен</button><button type="button" data-v="0">расчёт неверен</button></div>'+inp('cr'+i,'Правильный максимум (если неверно)');});
+ }
+ h+='<div class="row" style="margin-top:12px"><button id="checkBtn" class="p" type="button">Проверить</button><button id="showBtn" type="button">Показать решение</button></div><div id="fb"></div>';
+ t.innerHTML=h;
+ t.querySelectorAll('.choice button').forEach(b=>b.onclick=()=>{b.parentNode.querySelectorAll('button').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');state[b.parentNode.dataset.k]=b.dataset.v;});
+ $('checkBtn').onclick=check;$('showBtn').onclick=solution;}
+function fb(cls,t){return '<div class="fb '+cls+'">'+t+'</div>';}
+function check(){
+ if(checked)return;let out='',good=0,tot=0;const m=sc.mode;
+ const cmp=(id,exp,lab)=>{tot++;if(!filled(id)){out+=fb('warn',lab+': не заполнено. Правильный ответ — '+N.fmt(exp)+'.');return;}
+  if(Math.abs(val(id)-exp)<1e-6){good++;out+=fb('ok',lab+': верно, '+N.fmt(exp)+'.');}else out+=fb('bad',lab+': у вас '+N.fmt(val(id))+', правильно — '+N.fmt(exp)+'.');};
+ if(m==='solve'){
+  sc.res.forEach((r,i)=>{cmp('hi'+i,r.hi,'Эпизод '+(i+1)+', максимум');if($('lo'+i+'y'))cmp('lo'+i,r.sub?N.GENERAL_MIN:r.lo,'Эпизод '+(i+1)+', минимум');});
+  if(sc.combo)cmp('cap',sc.combo.upper,'Предел по ст. 69');
+  if(sc.s70)cmp('m70',sc.s70.max,'Максимум по ст. 70');
+  if(sc.s72){tot++;const v=+$('d72').value;if(v===sc.s72.credit){good++;out+=fb('ok','Зачёт: верно, '+sc.s72.credit+' дн.');}else out+=fb('bad','Зачёт по ст. 72: правильно '+sc.sizo+' × '+sc.s72.k+' = '+sc.s72.credit+' дн.');}
+ }else if(m==='check'){
+  const ev=(k,bad,lab)=>{tot++;const s=state[k];if(s===undefined){out+=fb('warn',lab+': выберите ответ. Правильно — '+(bad?'нарушение':'законно')+'.');return;}
+   if((s==='0')===bad){good++;out+=fb('ok',lab+': верно ('+(bad?'нарушение':'законно')+').');}else out+=fb('bad',lab+': неверно, правильно — '+(bad?'нарушение':'законно')+'.');};
+  sc.res.forEach((r,i)=>ev('e'+i,sc.vio[i],'Эпизод '+(i+1)));if(sc.combo)ev('f',sc.Fbad,'Итог по ст. 69');
+ }else{
+  sc.res.forEach((r,i)=>{tot++;const c=sc.court[i],s=state['c'+i];
+   if(s===undefined){out+=fb('warn','Эпизод '+(i+1)+': выберите ответ. '+(c.bad?'Расчёт неверен: '+c.why:'Расчёт верен.'));return;}
+   if(c.bad){if(s==='0'&&filled('cr'+i)&&val('cr'+i)===r.hi){good++;out+=fb('ok','Эпизод '+(i+1)+': ошибка найдена, предел '+N.fmt(r.hi)+'. '+c.why);}
+    else if(s==='0')out+=fb('bad','Эпизод '+(i+1)+': ошибка есть, но правильный максимум — '+N.fmt(r.hi)+'. '+c.why);
+    else out+=fb('bad','Эпизод '+(i+1)+': расчёт неверен. '+c.why+' Правильно — '+N.fmt(r.hi)+'.');}
+   else{if(s==='1'){good++;out+=fb('ok','Эпизод '+(i+1)+': расчёт верен.');}else out+=fb('bad','Эпизод '+(i+1)+': расчёт был верен, '+N.fmt(r.hi)+'.');}});
+ }
+ score.ok+=good===tot?1:0;score.all++;checked=true;upd();
+ $('fb').innerHTML=out+fb(good===tot?'ok':'warn','Итог: '+good+' из '+tot+'. Ниже — пошаговое решение.');solution();}
+function stepsHTML(r){return r.steps.map(s=>'<div class="step"><i>'+s.norm+'</i><div>'+s.text+'</div></div>').join('');}
+function solution(){
+ const c=$('solCard');c.classList.remove('hide');let h='<b>Решение по алгоритму</b>';
+ sc.res.forEach((r,i)=>{h+='<h3 style="margin:14px 0 4px">Эпизод '+(i+1)+': '+r.crime.art+'</h3>'+stepsHTML(r)+'<div class="final">Предел: '+(sc.ctx.recid||r.sub?'от '+N.fmt(r.sub?N.GENERAL_MIN:r.lo)+' ':'')+'до '+N.fmt(r.hi)+'</div>';});
+ if(sc.combo){const k=sc.combo;h+='<h3 style="margin:14px 0 4px">Совокупность (ст. 69)</h3>';
+  h+='<div class="step"><i>ст. 69</i><div>'+(k.part===3?'Есть оконченное тяжкое или особо тяжкое преступление — применима ч. 3: нижняя граница строго выше самого строгого из назначенных наказаний.':'Применима ч. 2 (все эпизоды средней или небольшой тяжести либо неоконченные): нижняя граница — не менее самого строгого из назначенных.')+'</div></div>';
+  h+='<div class="step"><i>Предел</i><div>'+(k.allUnf?'Все эпизоды неоконченные — потолок считается от максимума после ст. 66: ':'Потолок: полтора максимума самой строгой санкции без учёта смягчения (п. 50 Пленума № 58): ')+N.fmt(k.capBase)+' × 1,5 = '+N.fmt(k.cap)+'. Сумма назначенных: '+N.fmt(k.sum)+'. Общий предел 20 лет.</div></div>';
+  h+='<div class="final">Итог по ст. 69: больше '+(k.part===3?'':'или равно ')+N.fmt(k.mx)+', не более '+N.fmt(k.upper)+'</div>';}
+ if(sc.s70){const s=sc.s70,p=sc.p70,f=N.FACT71[p.type];h+='<h3 style="margin:14px 0 4px">Ст. 70 и ст. 71</h3><div class="step"><i>ст. 71</i><div>Неотбытое '+N.TYPE71_NOM[p.type]+' ('+N.fmt(p.unserved)+') переводится в лишение свободы: '+N.fmt(p.unserved)+' × '+(f===1?'1':f===0.5?'1/2':'1/3')+' = '+N.fmt(s.eq)+'.</div></div><div class="step"><i>ст. 70</i><div>Окончательное наказание должно быть больше неотбытой части и не более суммы: '+N.fmt(sc.F)+' + '+N.fmt(s.eq)+' = '+N.fmt(s.max)+'. Абсолютный потолок — 20 лет.</div></div><div class="final">Максимум по ст. 70: '+N.fmt(s.max)+'</div>';}
+ if(sc.s72){h+='<h3 style="margin:14px 0 4px">Ст. 72</h3><div class="step"><i>Режим</i><div>'+N.REGIME[sc.regime].name+(sc.ctx.recid?' (рецидив)':sc.regime==='general'?' (тяжкое, ранее не отбывал)':' (преступления небольшой/средней тяжести)')+' — коэффициент '+sc.s72.k+'.</div></div><div class="final">Зачёт: '+sc.sizo+' × '+sc.s72.k+' = '+sc.s72.credit+' дн. лишения свободы</div>';}
+ h+='<div class="row" style="margin-top:12px"><button id="newBtn2" class="p" type="button">Следующий кейс</button></div>';
+ c.innerHTML=h;$('newBtn2').onclick=()=>{seed++;render();window.scrollTo(0,0)};}
+$('newBtn').onclick=()=>{seed++;render()};$('mode').onchange=$('level').onchange=()=>{seed++;render()};
+$('themeToggle').onclick=()=>{const d=document.documentElement;const dark=d.dataset.theme==='dark'||(!d.dataset.theme&&matchMedia('(prefers-color-scheme:dark)').matches);d.dataset.theme=dark?'light':'dark'};
+render();
+})();
+</script></body></html>
