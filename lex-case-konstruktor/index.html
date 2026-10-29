@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="LEX CASE — конструктор учебных уголовно-правовых кейсов" />
+  <title>LEX CASE — конструктор учебных кейсов</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand-wrap">
+      <div class="logo" aria-hidden="true">LC</div>
+      <div>
+        <div class="brand">LEX CASE <span class="version">1.2</span></div>
+        <div class="subtitle">Конструктор учебных уголовно-правовых кейсов</div>
+      </div>
+    </div>
+    <button id="themeToggle" class="ghost-btn" type="button" aria-label="Переключить тему">◐ Тема</button>
+  </header>
+
+  <main class="page-shell">
+    <section class="hero card">
+      <div class="hero-copy">
+        <span class="eyebrow">AI-assisted legal-tech tool</span>
+        <h1>Создайте кейс для практического занятия за несколько секунд</h1>
+        <p>Выберите раздел, сложность и формат задания. LEX CASE сформирует учебную ситуацию, задание, вопросы для анализа и ориентир для преподавателя.</p>
+        <div class="stats" aria-label="Возможности приложения">
+          <span><strong>16</strong> базовых фабул</span>
+          <span><strong>48</strong> уровневых вариантов</span>
+          <span><strong>4</strong> формата задания</span>
+        </div>
+      </div>
+      <div class="hero-note">
+        <strong>Важно:</strong> приложение предназначено для учебных целей. Перед использованием результатов необходимо проверить действующую редакцию УК РФ, разъяснения Верховного Суда РФ и актуальную судебную практику.
+      </div>
+    </section>
+
+    <section class="builder card" aria-labelledby="builderTitle">
+      <div class="section-heading">
+        <div>
+          <span class="step">01</span>
+          <h2 id="builderTitle">Настройка задания</h2>
+        </div>
+        <button id="randomizeBtn" class="ghost-btn" type="button">↻ Случайные настройки</button>
+      </div>
+
+      <div class="form-grid">
+        <label class="field">
+          <span>Раздел</span>
+          <select id="topicSelect">
+            <option value="property">Преступления против собственности</option>
+            <option value="person">Преступления против личности</option>
+            <option value="economic">Преступления в сфере экономической деятельности</option>
+            <option value="official">Преступления против государственной власти и интересов службы</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Сложность</span>
+          <select id="difficultySelect">
+            <option value="basic">Базовая</option>
+            <option value="medium" selected>Средняя</option>
+            <option value="advanced">Повышенная</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Формат задания</span>
+          <select id="formatSelect">
+            <option value="qualification">Квалификация деяния</option>
+            <option value="elements">Анализ состава преступления</option>
+            <option value="distinction">Разграничение смежных составов</option>
+            <option value="sentencing">Анализ правил назначения наказания</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="action-row">
+        <button id="generateBtn" class="primary-btn" type="button">Создать кейс</button>
+        <button id="newBtn" class="secondary-btn" type="button">Новый кейс</button>
+      </div>
+    </section>
+
+    <section id="resultSection" class="result card hidden" aria-live="polite">
+      <div class="section-heading result-heading">
+        <div>
+          <span class="step">02</span>
+          <h2>Учебный кейс</h2>
+        </div>
+        <div class="meta" id="caseMeta"></div>
+      </div>
+
+      <article class="case-box">
+        <div class="case-title-row">
+          <div>
+            <span class="content-label">Фабула</span>
+            <h3 id="caseTitle">Кейс</h3>
+          </div>
+          <button id="copyCaseBtn" class="ghost-btn" type="button">⧉ Скопировать фабулу</button>
+        </div>
+        <p id="caseText"></p>
+        <div id="sentencingContext" class="sentencing-context hidden"></div>
+      </article>
+
+      <article class="task-box">
+        <span class="content-label">Задание</span>
+        <p id="taskText"></p>
+      </article>
+
+      <div class="result-actions">
+        <button id="questionsBtn" class="secondary-btn" type="button">Показать вопросы</button>
+        <button id="solutionBtn" class="secondary-btn" type="button">Показать ориентир</button>
+        <button id="copyAllBtn" class="ghost-btn" type="button">⧉ Скопировать всё</button>
+      </div>
+
+      <section id="questionsPanel" class="panel hidden">
+        <div class="panel-header">
+          <h3>Вопросы для анализа</h3>
+        </div>
+        <ol id="questionsList"></ol>
+      </section>
+
+      <section id="solutionPanel" class="panel solution hidden">
+        <div class="panel-header">
+          <h3>Ориентир для преподавателя</h3>
+        </div>
+        <div id="solutionText"></div>
+      </section>
+    </section>
+
+    <section class="about card">
+      <div class="section-heading">
+        <div>
+          <span class="step">03</span>
+          <h2>О проекте</h2>
+        </div>
+      </div>
+      <div class="about-grid">
+        <p><strong>LEX CASE</strong> разработан с использованием ИИ-агента. ИИ применялся для проектирования структуры приложения, программирования интерфейса и логики, подготовки и проверки учебных сценариев.</p>
+        <p>Приложение работает автономно: не требует регистрации, API-ключей, сервера или установки библиотек и не передаёт введённые пользователем данные сторонним сервисам.</p>
+      </div>
+    </section>
+
+    <section class="how-it-works card">
+      <div class="section-heading">
+        <div>
+          <span class="step">04</span>
+          <h2>Как использовать</h2>
+        </div>
+      </div>
+      <div class="mini-grid">
+        <div class="mini-card"><strong>1.</strong><span>Выберите параметры.</span></div>
+        <div class="mini-card"><strong>2.</strong><span>Сформируйте фабулу и задание.</span></div>
+        <div class="mini-card"><strong>3.</strong><span>Покажите вопросы студентам.</span></div>
+        <div class="mini-card"><strong>4.</strong><span>Откройте ориентир после обсуждения.</span></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    LEX CASE 1.2 · Учебный legal-tech прототип, созданный с использованием ИИ-агента
+  </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="cases.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
